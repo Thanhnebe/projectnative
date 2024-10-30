@@ -1,23 +1,27 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, TextInput, View, Alert, TouchableOpacity, TouchableWithoutFeedback, Keyboard } from 'react-native';
-import auth from '@react-native-firebase/auth';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage'; // Thêm AsyncStorage
 import { useNavigation } from '@react-navigation/native';
 
 const LoginScreen = () => {
-    const [email, setEmail] = useState('');
+    const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const navigation = useNavigation();
 
-    const handleLogin = () => {
-        auth()
-            .signInWithEmailAndPassword(email, password)
-            .then(() => {
-                Alert.alert('Đăng nhập thành công');
-                navigation.navigate('Home');
-            })
-            .catch(error => {
-                Alert.alert('Đăng nhập thất bại', error.message);
-            });
+    const handleLogin = async () => {
+        const userData = { username, password };
+
+        try {
+            const response = await axios.post('https://manim-api-ffh6c8ewbehjc0hn.canadacentral-01.azurewebsites.net/api/auth/SignIn', userData);
+            const { user, token } = response.data.data;
+
+            await AsyncStorage.setItem('userToken', token.accessToken);
+            Alert.alert('Đăng nhập thành công');
+            navigation.navigate('Home', { user });
+        } catch (error) {
+            Alert.alert('Đăng nhập thất bại', error.response ? error.response.data.message : error.message);
+        }
     };
 
     const goToSignUp = () => {
@@ -34,10 +38,9 @@ const LoginScreen = () => {
                 <Text style={styles.title}>Đăng nhập</Text>
                 <TextInput
                     style={styles.input}
-                    placeholder="Email"
-                    value={email}
-                    onChangeText={setEmail}
-                    keyboardType="email-address"
+                    placeholder="Username"
+                    value={username}
+                    onChangeText={setUsername}
                 />
                 <TextInput
                     style={styles.input}
@@ -52,13 +55,12 @@ const LoginScreen = () => {
 
                 <TouchableOpacity style={styles.googleButton}>
                     <Text style={{ fontSize: 32, fontWeight: "bold" }}>
-                        <Text style={{ color: "#4285F4" }}>
-                            G<Text style={{ color: "#EA4336" }}>o</Text>
-                            <Text style={{ color: "#FBBC04" }}>o</Text>
-                            <Text style={{ color: "#4285F4" }}>g</Text>
-                            <Text style={{ color: "#34A853" }}>l</Text>
-                            <Text style={{ color: "#EA4336" }}>e</Text>
-                        </Text>
+                        <Text style={{ color: "#4285F4" }}>G</Text>
+                        <Text style={{ color: "#EA4336" }}>o</Text>
+                        <Text style={{ color: "#FBBC04" }}>o</Text>
+                        <Text style={{ color: "#4285F4" }}>g</Text>
+                        <Text style={{ color: "#34A853" }}>l</Text>
+                        <Text style={{ color: "#EA4336" }}>e</Text>
                     </Text>
                 </TouchableOpacity>
 
