@@ -5,27 +5,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 
-const AllTab = ({ chapters, navigation }) => (
-    <FlatList
-        data={chapters}
-        keyExtractor={item => item.id}
-        renderItem={({ item }) => (
-            <TouchableOpacity onPress={() => navigation.navigate('ChapterDetail', { chapter: item })}>
-                <View style={styles.card}>
-                    <Image
-                        source={{ uri: item.imageUrl || 'https://service.keyframe.vn/uploads/filecloud/2018/April/25/72-559201524659628-1524659628.jpg' }} // Sử dụng URL hình ảnh từ API hoặc hình ảnh dự phòng
-                        style={styles.chapterImage}
-                        resizeMode="cover"
-                    />
-                    <Text style={styles.cardTitle}>{item.name}</Text>
-                </View>
-            </TouchableOpacity>
-        )}
-    />
-);
-
-const PhysicsTab = ({ chapters, navigation }) => {
-    const filteredChapters = chapters.filter(item => item.subjectName.includes('Vật lý'));
+const SubjectTab = ({ chapters, subjectName, navigation }) => {
+    const filteredChapters = chapters.filter(item => item.subjectName.includes(subjectName));
     return (
         <View style={styles.scene}>
             {filteredChapters.length === 0 ? (
@@ -38,38 +19,11 @@ const PhysicsTab = ({ chapters, navigation }) => {
                         <TouchableOpacity onPress={() => navigation.navigate('ChapterDetail', { chapter: item })}>
                             <View style={styles.card}>
                                 <Image
-                                    source={{ uri: item.imageUrl || 'https://service.keyframe.vn/uploads/filecloud/2018/April/25/72-559201524659628-1524659628.jpg' }} // Sử dụng URL hình ảnh từ API hoặc hình ảnh dự phòng
+                                    source={{ uri: item.imageUrl || 'https://service.keyframe.vn/uploads/filecloud/2018/April/25/72-559201524659628-1524659628.jpg' }}
                                     style={styles.chapterImage}
                                     resizeMode="cover"
                                 />
-                                <Text style={styles.cardTitle}>{item.name}</Text>
-                            </View>
-                        </TouchableOpacity>
-                    )}
-                />
-            )}
-        </View>
-    );
-};
-
-const MathTab = ({ chapters, navigation }) => {
-    const filteredChapters = chapters.filter(item => item.subjectName.includes('Toán học'));
-    return (
-        <View style={styles.scene}>
-            {filteredChapters.length === 0 ? (
-                <Text style={styles.noDataText}>Hiện tại chưa có bài học nào</Text>
-            ) : (
-                <FlatList
-                    data={filteredChapters}
-                    keyExtractor={item => item.id}
-                    renderItem={({ item }) => (
-                        <TouchableOpacity onPress={() => navigation.navigate('ChapterDetail', { chapter: item })}>
-                            <View style={styles.card}>
-                                <Image
-                                    source={{ uri: item.imageUrl || 'https://service.keyframe.vn/uploads/filecloud/2018/April/25/72-559201524659628-1524659628.jpg' }} // Sử dụng URL hình ảnh từ API hoặc hình ảnh dự phòng
-                                    style={styles.chapterImage}
-                                    resizeMode="cover"
-                                />
+                                <Text style={styles.titlemonhoc}>{item.subjectName}</Text>
                                 <Text style={styles.cardTitle}>{item.name}</Text>
                             </View>
                         </TouchableOpacity>
@@ -81,39 +35,60 @@ const MathTab = ({ chapters, navigation }) => {
 };
 
 const HomeScreen = ({ navigation }) => {
-    const route = useRoute();
     const [chapters, setChapters] = useState([]);
+    const [subjects, setSubjects] = useState([]);
     const [index, setIndex] = useState(0);
-    const [routes] = useState([
-        { key: 'all', title: 'Tất cả' },
-        { key: 'physics', title: 'Vật lý' },
-        { key: 'math', title: 'Toán học' },
-    ]);
+    const [routes, setRoutes] = useState([]);
 
     useEffect(() => {
-        const fetchData = async () => {
+        const fetchSubjectsAndChapters = async () => {
             try {
                 const token = await AsyncStorage.getItem('userToken');
-                const response = await axios.get('https://manim-api-ffh6c8ewbehjc0hn.canadacentral-01.azurewebsites.net/api/chapters', {
+
+                // Fetch subjects
+                const subjectsResponse = await axios.get('https://manimapi-hfanb8gyejb3eacw.southeastasia-01.azurewebsites.net/api/subjects?index=1&pageSize=10', {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'accept': '*/*',
                     },
                 });
-                setChapters(response.data.data.items || []);
+
+                const fetchedSubjects = subjectsResponse.data.data.items;
+                setSubjects(fetchedSubjects);
+
+                // Set routes dynamically based on subjects
+                const generatedRoutes = fetchedSubjects.map((subject, idx) => ({
+                    key: subject.id,
+                    title: subject.name,
+                }));
+                setRoutes(generatedRoutes);
+
+                // Fetch chapters
+                const chaptersResponse = await axios.get('https://manimapi-hfanb8gyejb3eacw.southeastasia-01.azurewebsites.net/api/chapters', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'accept': '*/*',
+                    },
+                });
+                setChapters(chaptersResponse.data.data.items || []);
             } catch (error) {
                 console.error(error);
             }
         };
 
-        fetchData();
+        fetchSubjectsAndChapters();
     }, []);
 
-    const renderScene = SceneMap({
-        all: () => <AllTab chapters={chapters} navigation={navigation} />,
-        physics: () => <PhysicsTab chapters={chapters} navigation={navigation} />,
-        math: () => <MathTab chapters={chapters} navigation={navigation} />,
-    });
+    const renderScene = ({ route }) => {
+        const subject = subjects.find(subject => subject.id === route.key);
+        return (
+            <SubjectTab
+                chapters={chapters}
+                subjectName={subject ? subject.name : ''}
+                navigation={navigation}
+            />
+        );
+    };
 
     const renderTabBar = props => (
         <TabBar
@@ -126,6 +101,10 @@ const HomeScreen = ({ navigation }) => {
 
     return (
         <View style={styles.container}>
+            <Text style={styles.userName}>Welcome, {'User'}!</Text>
+            <Text style={styles.center}>Hiện bạn sẽ học gì cùng Manim AI Physics Visualizer App đây?</Text>
+            <Text style={styles.center}>Hãy cho chúng mình biết nhé!</Text>
+            <Text style={styles.danhmuc}>Danh mục</Text>
             <TabView
                 navigationState={{ index, routes }}
                 renderScene={renderScene}
@@ -143,7 +122,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 16,
-        backgroundColor: '#f5f5f5',
+        backgroundColor: '#bed1cd',
     },
     title: {
         fontSize: 24,
@@ -152,7 +131,7 @@ const styles = StyleSheet.create({
     },
     chapterImage: {
         width: '100%',
-        height: 100, // Điều chỉnh chiều cao tùy ý
+        height: 100,
         borderRadius: 8,
         marginBottom: 8,
     },
@@ -162,6 +141,7 @@ const styles = StyleSheet.create({
     tabLabel: {
         color: '#007AFF',
         fontWeight: 'bold',
+        textAlign: 'center'
     },
     tabIndicator: {
         backgroundColor: '#007AFF',
@@ -186,4 +166,21 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: '#888',
     },
+    center: {
+        textAlign: "center",
+        marginVertical: 10,
+        fontSize: 14
+    },
+    userName: {
+        marginBottom: 12,
+        fontSize: 30,
+        fontWeight: "700",
+        textAlign: "center"
+    },
+    danhmuc: {
+        fontWeight: "500",
+        textTransform: "uppercase",
+        marginTop: 10,
+        fontSize: 15
+    }
 });

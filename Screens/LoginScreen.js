@@ -13,10 +13,14 @@ const LoginScreen = () => {
         const userData = { username, password };
 
         try {
-            const response = await axios.post('https://manim-api-ffh6c8ewbehjc0hn.canadacentral-01.azurewebsites.net/api/auth/SignIn', userData);
+            const response = await axios.post('https://manimapi-hfanb8gyejb3eacw.southeastasia-01.azurewebsites.net/api/auth/SignIn', userData);
             const { user, token } = response.data.data;
+            console.log(response);
 
+            // Save user details and token to AsyncStorage
             await AsyncStorage.setItem('userToken', token.accessToken);
+            await AsyncStorage.setItem('userData', JSON.stringify(user));
+
             Alert.alert('Đăng nhập thành công');
             navigation.navigate('Home', { user });
         } catch (error) {

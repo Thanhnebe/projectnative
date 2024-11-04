@@ -12,51 +12,67 @@ const ProfileScreen = ({ navigation }) => {
     const [gender, setGender] = useState('');
 
     useEffect(() => {
-        const fetchUser = async () => {
-            const token = await AsyncStorage.getItem('userToken');
+        const fetchUserData = async () => {
             try {
-                const response = await axios.get('https://manim-api-ffh6c8ewbehjc0hn.canadacentral-01.azurewebsites.net/api/user/profile', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                    },
-                });
-                setUser(response.data.data);
-                setFullName(response.data.data.fullName); // Khởi tạo tên người dùng
-                setEmail(response.data.data.email); // Khởi tạo email
-                setPhone(response.data.data.phone); // Khởi tạo số điện thoại
-                setGender(response.data.data.gender); // Khởi tạo giới tính
+                const userDataString = await AsyncStorage.getItem('userData');
+                if (userDataString) {
+                    const userData = JSON.parse(userDataString);
+                    setUser(userData);
+                    setFullName(userData.fullName);
+                    setEmail(userData.email);
+                    setPhone(userData.phoneNumber);
+                    setGender(userData.gender);
+                }
             } catch (error) {
                 console.error(error);
-                Alert.alert('Lỗi', 'Không thể lấy thông tin người dùng');
+                Alert.alert('Lỗi', 'Không thể lấy thông tin người dùng từ lưu trữ');
             }
         };
 
-        fetchUser();
+        fetchUserData();
     }, []);
 
-    const handleEdit = () => {
-        setIsEditing(!isEditing);
+    const handleEdit = async () => {
         if (isEditing) {
-            const updateUser = async () => {
+            const updateUserData = async () => {
                 const token = await AsyncStorage.getItem('userToken');
+                const updatedUser = { userName: user.userName, fullName, email, phoneNumber: phone, gender };
+
                 try {
-                    await axios.put('https://manim-api-ffh6c8ewbehjc0hn.canadacentral-01.azurewebsites.net/api/user/profile', {
-                        fullName,
-                        email,
-                        phone,
-                        gender,
-                    }, {
-                        headers: {
-                            'Authorization': `Bearer ${token}`,
-                        },
-                    });
-                    Alert.alert('Thông báo', 'Cập nhật thông tin thành công');
+                    const response = await axios.put(
+                        'https://manimapi-hfanb8gyejb3eacw.southeastasia-01.azurewebsites.net/api/auth/UpdateProfile',
+                        updatedUser,
+                        {
+                            headers: {
+                                'Authorization': `Bearer ${token}`,
+                                'Content-Type': 'application/json',
+                            },
+                        }
+                    );
+
+                    if (response.status === 200) {
+                        await AsyncStorage.setItem('userData', JSON.stringify(updatedUser));
+                        setUser(updatedUser);
+                        Alert.alert('Thông báo', 'Cập nhật thông tin thành công');
+                    }
                 } catch (error) {
                     console.error(error);
                     Alert.alert('Lỗi', 'Không thể cập nhật thông tin');
                 }
             };
-            updateUser();
+            updateUserData();
+        }
+        setIsEditing(!isEditing);
+    };
+
+    const handleLogout = async () => {
+        try {
+            await AsyncStorage.removeItem('userToken');
+            await AsyncStorage.removeItem('userData');
+            navigation.navigate('Home'); // Adjust to your actual home route name
+        } catch (error) {
+            console.error(error);
+            Alert.alert('Lỗi', 'Đăng xuất không thành công');
         }
     };
 
@@ -94,14 +110,14 @@ const ProfileScreen = ({ navigation }) => {
                     onChangeText={setPhone}
                 />
             ) : (
-                <Text style={styles.info}>{user.phone}</Text>
+                <Text style={styles.info}>{user.phoneNumber}</Text>
             )}
 
             <Text style={styles.label}>Giới tính:</Text>
             {isEditing ? (
                 <TextInput
                     style={styles.input}
-                    value={gender}
+                    value={gender.toString()}
                     onChangeText={setGender}
                 />
             ) : (
@@ -110,6 +126,10 @@ const ProfileScreen = ({ navigation }) => {
 
             <TouchableOpacity style={styles.button} onPress={handleEdit}>
                 <Text style={styles.buttonText}>{isEditing ? 'Lưu' : 'Sửa'}</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={[styles.button, styles.logoutButton]} onPress={handleLogout}>
+                <Text style={styles.buttonText}>Đăng xuất</Text>
             </TouchableOpacity>
         </View>
     );
@@ -121,7 +141,8 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 16,
-        backgroundColor: '#f5f5f5',
+        backgroundColor: '#c7fffe',
+
     },
     title: {
         fontSize: 24,
@@ -150,10 +171,14 @@ const styles = StyleSheet.create({
         height: 50,
         justifyContent: 'center',
         alignItems: 'center',
+        marginBottom: 10,
     },
     buttonText: {
         color: '#FFFFFF',
         fontSize: 16,
         fontWeight: 'bold',
+    },
+    logoutButton: {
+        backgroundColor: '#FF3B30',
     },
 });

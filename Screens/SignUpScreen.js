@@ -28,7 +28,7 @@ const SignUpScreen = () => {
       gender,
     };
 
-    axios.post('https://manim-api-ffh6c8ewbehjc0hn.canadacentral-01.azurewebsites.net/api/auth/SignUp', userData)
+    axios.post('https://manimapi-hfanb8gyejb3eacw.southeastasia-01.azurewebsites.net/api/auth/SignUp', userData)
       .then(response => {
         Alert.alert('Account created successfully');
         navigation.navigate('Login');

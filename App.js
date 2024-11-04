@@ -9,6 +9,9 @@ import SignUpScreen from './Screens/SignUpScreen';
 import ChapterDetailScreen from './Screens/ChapterDetailScreen';
 import MyWalletScreen from './Screens/MyWalletScreen';
 import ProfileScreen from './Screens/ProfileScreen';
+import TopicDetailScreen from './Screens/TopicDetailScreen';
+import ProblemDetailScreen from './Screens/ProblemDetailScreen';
+import CourseManagementScreen from './Screens/CourseManagementScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -19,6 +22,8 @@ const HomeTabs = () => {
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="MyWallet" component={MyWalletScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
+      <Tab.Screen name="CourseManagement" component={CourseManagementScreen} />
+
     </Tab.Navigator>
   );
 };
@@ -31,6 +36,9 @@ const App = () => {
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Home" component={HomeTabs} />
         <Stack.Screen name="ChapterDetail" component={ChapterDetailScreen} />
+        <Stack.Screen name="TopicDetail" component={TopicDetailScreen} />
+        <Stack.Screen name="ProblemDetail" component={ProblemDetailScreen} />
+
       </Stack.Navigator>
     </NavigationContainer>
   );
