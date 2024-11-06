@@ -15,6 +15,7 @@ const MyWalletScreen = () => {
   const [amount, setAmount] = useState('');
   const [loading, setLoading] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  console.log(walletData);
 
   const formatCurrency = (amount) => {
     if (amount === undefined || amount === null) return '0 ₫';
@@ -26,8 +27,6 @@ const MyWalletScreen = () => {
     }).format(amount);
   };
 
-
-
   const fetchWalletData = async () => {
     try {
       setIsLoading(true);
@@ -37,27 +36,43 @@ const MyWalletScreen = () => {
         return;
       }
 
-      const response = await axios.get(`${BASE_API_URL}/getWallet`, {
+      // Fetch wallet details
+      const walletResponse = await axios.get(`${BASE_API_URL}/getWallet`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
 
-      if (response.data) {
-        const parsedData = {
-          userId: response.data.data.userId,
-          balance: parseFloat(response.data.data.balance) || 0,
-          transactions: (response.data.data.transactions || []).map((t) => ({
-            ...t,
-            amount: parseFloat(t.amount) || 0
-          })),
-          purchasedCourses: (response.data.data.purchasedCourses || []).map((c) => ({
-            ...c,
-            price: parseFloat(c.price) || 0
-          }))
-        };
-        setWalletData(parsedData);
+      let parsedData = {
+        userId: walletResponse.data.data.userId,
+        balance: parseFloat(walletResponse.data.data.balance) || 0,
+        transactions: (walletResponse.data.data.transactions || []).map((t) => ({
+          ...t,
+          amount: parseFloat(t.amount) || 0
+        })),
+        purchasedCourses: (walletResponse.data.data.purchasedCourses || []).map((c) => ({
+          ...c,
+          price: parseFloat(c.price) || 0
+        }))
+      };
+
+      // Fetch additional transaction history
+      const transactionResponse = await axios.get(`${BASE_API_URL}/api/transaction?index=1&pageSize=10`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (transactionResponse.data.data.items) {
+        const additionalTransactions = transactionResponse.data.data.items.map((t) => ({
+          walletId: t.walletId,
+          amount: parseFloat(t.amount) || 0,
+          orderCode: t.orderCode,
+          status: t.status,
+        }));
+        parsedData.transactions = [...parsedData.transactions, ...additionalTransactions];
       }
+
+      setWalletData(parsedData);
     } catch (error) {
       Alert.alert('Không thể tải thông tin ví. Vui lòng thử lại sau.');
+      console.error("Error fetching wallet data:", error);
     } finally {
       setIsLoading(false);
     }
@@ -113,9 +128,10 @@ const MyWalletScreen = () => {
 
   const renderTransactionItem = ({ item }) => (
     <View style={styles.item}>
-      <Text style={styles.description}>{item.description}</Text>
-      <Text style={[styles.amount, { color: item.amount >= 0 ? 'green' : 'red' }]}>{formatCurrency(item.amount)}</Text>
-      <Text style={styles.date}>{item.date}</Text>
+      <Text style={styles.description}>Order Code: {item.orderCode || 'N/A'}</Text>
+      <Text style={[styles.amount, { color: item.amount >= 0 ? 'green' : 'red' }]}>
+        {formatCurrency(item.amount)}
+      </Text>
       <Text style={[styles.status, styles[item.status.toLowerCase()]]}>{item.status}</Text>
     </View>
   );

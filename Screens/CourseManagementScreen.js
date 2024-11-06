@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, Text, FlatList, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Text, FlatList, TouchableOpacity, Linking } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -11,8 +11,11 @@ const CourseManagementScreen = () => {
         const fetchSolutions = async () => {
             try {
                 const token = await AsyncStorage.getItem('userToken');
+                const userData = await AsyncStorage.getItem('userData');
+                const { id } = JSON.parse(userData);
+
                 const response = await axios.get(
-                    'https://manimapi-hfanb8gyejb3eacw.southeastasia-01.azurewebsites.net/api/solutions?index=1&pageSize=10',
+                    `https://manimapi-hfanb8gyejb3eacw.southeastasia-01.azurewebsites.net/api/solutions?index=1&pageSize=10&userId=${id}`,
                     {
                         headers: {
                             'Authorization': `Bearer ${token}`,
@@ -20,6 +23,7 @@ const CourseManagementScreen = () => {
                     }
                 );
                 setSolutions(response.data.data.items);
+
             } catch (error) {
                 console.error(error);
             } finally {
@@ -29,6 +33,10 @@ const CourseManagementScreen = () => {
 
         fetchSolutions();
     }, []);
+
+    const handleLinkPress = (url) => {
+        Linking.openURL(url).catch(err => console.error("Couldn't open page", err));
+    };
 
     if (loading) {
         return (
@@ -48,7 +56,7 @@ const CourseManagementScreen = () => {
                     <View style={styles.solutionCard}>
                         <Text style={styles.solutionTitle}>{item.problemName}</Text>
                         <Text>{item.description}</Text>
-                        <TouchableOpacity onPress={() => {/* Navigate to play video */ }}>
+                        <TouchableOpacity onPress={() => handleLinkPress(item.url)}>
                             <Text style={styles.link}>Xem video chi tiết</Text>
                         </TouchableOpacity>
                     </View>
@@ -65,7 +73,6 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 16,
         backgroundColor: '#c7fffe',
-
     },
     title: {
         fontSize: 24,
