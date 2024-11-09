@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="react_native_dev_server_port">8081</integer>
+    <string name="app_name">botTele</string>
+    <string name="gcm_defaultSenderId" translatable="false">54904457472</string>
+    <string name="google_api_key" translatable="false">AIzaSyB-lT4YKGUwmVGwHqdZpZAlzLzJjWck4qA</string>
+    <string name="google_app_id" translatable="false">1:54904457472:android:2bf044f3db58a678a5cbe5</string>
+    <string name="google_crash_reporting_api_key" translatable="false">AIzaSyB-lT4YKGUwmVGwHqdZpZAlzLzJjWck4qA</string>
+    <string name="google_storage_bucket" translatable="false">lab7-f0157.appspot.com</string>
+    <string name="project_id" translatable="false">lab7-f0157</string>
+    <style name="AppTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
+        
+        <item name="android:editTextBackground">@drawable/rn_edit_text_material</item>
+    </style>
+</resources>
