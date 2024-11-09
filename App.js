@@ -12,6 +12,7 @@ import ProfileScreen from './Screens/ProfileScreen';
 import TopicDetailScreen from './Screens/TopicDetailScreen';
 import ProblemDetailScreen from './Screens/ProblemDetailScreen';
 import CourseManagementScreen from './Screens/CourseManagementScreen';
+import OTPScreen from './Screens/OTPScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -38,6 +39,7 @@ const App = () => {
         <Stack.Screen name="ChapterDetail" component={ChapterDetailScreen} />
         <Stack.Screen name="TopicDetail" component={TopicDetailScreen} />
         <Stack.Screen name="ProblemDetail" component={ProblemDetailScreen} />
+        <Stack.Screen name="OTPScreen" component={OTPScreen} />
 
       </Stack.Navigator>
     </NavigationContainer>

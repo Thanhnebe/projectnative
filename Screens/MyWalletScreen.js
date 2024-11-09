@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, Modal, Alert, FlatList, ActivityIndicator, StyleSheet, Linking } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-const BASE_API_URL = 'https://manimapi-hfanb8gyejb3eacw.southeastasia-01.azurewebsites.net';
+const BASE_API_URL = 'https://manim-api-ffh6c8ewbehjc0hn.southeastasia-01.azurewebsites.net';
 
 const MyWalletScreen = () => {
   const [walletData, setWalletData] = useState({

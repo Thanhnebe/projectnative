@@ -9,7 +9,7 @@ const TopicDetailScreen = ({ route, navigation }) => {
     useEffect(() => {
         const fetchProblems = async () => {
             try {
-                const response = await axios.get('https://manimapi-hfanb8gyejb3eacw.southeastasia-01.azurewebsites.net/api/topics?index=1&pageSize=10');
+                const response = await axios.get('https://manim-api-ffh6c8ewbehjc0hn.southeastasia-01.azurewebsites.net/api/topics?index=1&pageSize=10');
                 const topicData = response.data.data.items.find(item => item.id === topic.id);
                 setProblems(topicData ? topicData.problems : []);
             } catch (error) {

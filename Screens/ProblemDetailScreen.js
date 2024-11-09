@@ -17,7 +17,7 @@ const ProblemDetailScreen = ({ route }) => {
             try {
                 const token = await AsyncStorage.getItem('userToken');
                 const response = await axios.get(
-                    'https://manimapi-hfanb8gyejb3eacw.southeastasia-01.azurewebsites.net/api/problems?index=1&pageSize=10',
+                    'https://manim-api-ffh6c8ewbehjc0hn.southeastasia-01.azurewebsites.net/api/problems?index=1&pageSize=10',
                     {
                         headers: {
                             'accept': '*/*',
@@ -73,7 +73,7 @@ const ProblemDetailScreen = ({ route }) => {
         try {
             const token = await AsyncStorage.getItem('userToken');
             const response = await axios.post(
-                'https://manimapi-hfanb8gyejb3eacw.southeastasia-01.azurewebsites.net/api/problems/purchaseProblem',
+                'https://manim-api-ffh6c8ewbehjc0hn.southeastasia-01.azurewebsites.net/api/problems/purchaseProblem',
                 data,
                 {
                     headers: {

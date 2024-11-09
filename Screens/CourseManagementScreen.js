@@ -15,7 +15,7 @@ const CourseManagementScreen = () => {
                 const { id } = JSON.parse(userData);
 
                 const response = await axios.get(
-                    `https://manimapi-hfanb8gyejb3eacw.southeastasia-01.azurewebsites.net/api/solutions?index=1&pageSize=10&userId=${id}`,
+                    `https://manim-api-ffh6c8ewbehjc0hn.southeastasia-01.azurewebsites.net/api/solutions?index=1&pageSize=10&userId=${id}`,
                     {
                         headers: {
                             'Authorization': `Bearer ${token}`,

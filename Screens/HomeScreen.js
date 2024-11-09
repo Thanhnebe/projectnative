@@ -46,7 +46,7 @@ const HomeScreen = ({ navigation }) => {
                 const token = await AsyncStorage.getItem('userToken');
 
                 // Fetch subjects
-                const subjectsResponse = await axios.get('https://manimapi-hfanb8gyejb3eacw.southeastasia-01.azurewebsites.net/api/subjects?index=1&pageSize=10', {
+                const subjectsResponse = await axios.get('https://manim-api-ffh6c8ewbehjc0hn.southeastasia-01.azurewebsites.net/api/subjects?index=1&pageSize=10', {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'accept': '*/*',
@@ -64,7 +64,7 @@ const HomeScreen = ({ navigation }) => {
                 setRoutes(generatedRoutes);
 
                 // Fetch chapters
-                const chaptersResponse = await axios.get('https://manimapi-hfanb8gyejb3eacw.southeastasia-01.azurewebsites.net/api/chapters', {
+                const chaptersResponse = await axios.get('https://manim-api-ffh6c8ewbehjc0hn.southeastasia-01.azurewebsites.net/api/chapters', {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'accept': '*/*',

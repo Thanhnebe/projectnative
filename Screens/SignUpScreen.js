@@ -2,15 +2,16 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, TextInput, View, Button, Alert, TouchableOpacity } from 'react-native';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const SignUpScreen = () => {
-  const [username, setUsername] = useState('');  // Thêm state cho username
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
-  const [gender, setGender] = useState(0);  // Sử dụng số cho gender
+  const [gender, setGender] = useState(0); // Male = 0, Female = 1
   const navigation = useNavigation();
 
   const next = () => {
@@ -18,22 +19,37 @@ const SignUpScreen = () => {
   };
 
   const handleSignUp = () => {
+    if (password !== confirmPassword) {
+      Alert.alert('Error', 'Passwords do not match');
+      return;
+    }
+
     const userData = {
-      username,  // Gửi username
+      username,
       password,
-      confirmPassword,  // Thêm confirmPassword
+      confirmPassword,
       fullName,
       email,
       phone,
       gender,
     };
 
-    axios.post('https://manimapi-hfanb8gyejb3eacw.southeastasia-01.azurewebsites.net/api/auth/SignUp', userData)
-      .then(response => {
-        Alert.alert('Account created successfully');
-        navigation.navigate('Login');
+    axios.post('https://manim-api-ffh6c8ewbehjc0hn.southeastasia-01.azurewebsites.net/api/auth/SignUp', userData)
+      .then(async (response) => {
+        if (response.data.statusCode === 200) {
+          Alert.alert('Success', 'Account created successfully');
+          const userId = response.data.data; // The userId returned from the response
+
+          // Save the userId into AsyncStorage
+          await AsyncStorage.setItem('userid', userId);
+
+          // Navigate to the OTP screen for OTP verification
+          navigation.navigate('OTPScreen');
+        } else {
+          Alert.alert('Error', response.data.message || 'Something went wrong');
+        }
       })
-      .catch(error => {
+      .catch((error) => {
         Alert.alert(`Error: ${error.response ? error.response.data.errorMessage : error.message}`);
       });
   };
